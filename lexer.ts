@@ -7,6 +7,7 @@ export enum TokenType {
   CloseParen,
   BinaryOperator,
   Let,
+  EOF,
 }
 
 // Reserved keywords (so we can distinguish reserved identifiers and variable names)
@@ -86,10 +87,11 @@ export function tokenize(sourceCode: string): Token[] {
       }
     }
   }
+  tokens.push({ type: TokenType.EOF, value: "EndOfFile" });
   return tokens;
 }
 
-const source = await Deno.readTextFile("./lexer.ts");
+const source = await Deno.readTextFile("./test.txt");
 
 for (const token of tokenize(source)) {
   console.log(token);
