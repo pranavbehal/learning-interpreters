@@ -6,10 +6,12 @@ export enum TokenType {
 
   // Keywords:
   Let,
+  Const,
 
   // Grouping & Operators:
   BinaryOperator,
   Equals,
+  Semicolon,
   OpenParen,
   CloseParen,
   EOF,
@@ -18,6 +20,7 @@ export enum TokenType {
 // Reserved keywords (so we can distinguish reserved identifiers and variable names)
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
+  const: TokenType.Const,
 };
 
 export interface Token {
@@ -66,6 +69,8 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift(), TokenType.BinaryOperator));
     } else if (src[0] == "=") {
       tokens.push(token(src.shift(), TokenType.Equals));
+    } else if (src[0] == ";") {
+      tokens.push(token(src.shift(), TokenType.Semicolon));
     } else {
       // Handles multi-character things (the top if-elses were for single-character items)
 

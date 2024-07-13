@@ -2,7 +2,11 @@
 // Example: 'let x = 45' doesn't return anything, but 'x = 45' does
 
 export type NodeType =
+  // Statements
   | "Program"
+  | "VarDeclaration"
+
+  // Expressions
   | "NumericLiteral"
   | "Identifier"
   | "BinaryExpr";
@@ -17,6 +21,13 @@ export interface Stmt {
 export interface Program extends Stmt {
   kind: "Program";
   body: Stmt[];
+}
+
+export interface VarDeclaration extends Stmt {
+  kind: "VarDeclaration";
+  constant: boolean;
+  identifier: string;
+  value?: Expr;
 }
 
 export interface Expr extends Stmt {}
