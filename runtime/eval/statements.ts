@@ -20,5 +20,5 @@ export function eval_var_declaration(
   const value = declaration.value
     ? evaluate(declaration.value, env)
     : MK_NULL();
-  env.declareVar(declaration.identifier, value);
+  return env.declareVar(declaration.identifier, value, declaration.constant);
 }

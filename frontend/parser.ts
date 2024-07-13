@@ -6,6 +6,7 @@ import {
   NumericLiteral,
   Identifier,
   VarDeclaration,
+  AssignmentExpr,
 } from "./ast.ts";
 import { tokenize, Token, TokenType } from "./lexer.ts";
 
@@ -90,6 +91,7 @@ export default class Parser {
     const declaration = {
       kind: "VarDeclaration",
       value: this.parse_expr(),
+      identifier,
       constant: isConstant,
     } as VarDeclaration;
 
@@ -102,7 +104,19 @@ export default class Parser {
   // I am implementing these in order of precendence (what needs to happen before something else)
 
   private parse_expr(): Expr {
-    return this.parse_additive_expr();
+    return this.parse_assignment_expr();
+  }
+
+  parse_assignment_expr(): Expr {
+    const left = this.parse_additive_expr();
+    if (this.at().type == TokenType.Equals) {
+      this.eat();
+      const value = this.parse_assignment_expr();
+
+      return { kind: "AssignmentExpr", assigne: left, value } as AssignmentExpr;
+    }
+
+    return left;
   }
 
   private parse_additive_expr(): Expr {

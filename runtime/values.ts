@@ -1,4 +1,4 @@
-export type ValueType = "null" | "number" | "bool";
+export type ValueType = "null" | "number" | "boolean";
 
 export interface RuntimeVal {
   type: ValueType;
