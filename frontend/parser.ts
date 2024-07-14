@@ -11,6 +11,7 @@ import {
   Property,
   CallExpr,
   MemberExpr,
+  FunctionDeclaration,
 } from "./ast.ts";
 import { tokenize, Token, TokenType } from "./lexer.ts";
 
@@ -62,9 +63,50 @@ export default class Parser {
       case TokenType.Const:
         return this.parse_var_declaration();
 
+      case TokenType.Fn:
+        return this.parse_fn_declaration();
+
       default:
         return this.parse_expr();
     }
+  }
+
+  parse_fn_declaration(): Stmt {
+    this.eat();
+    const name = this.expect(
+      TokenType.Identifier,
+      "Expected a function name"
+    ).value;
+
+    const args = this.parse_args();
+    const params: string[] = [];
+    for (const arg of args) {
+      if (arg.kind !== "Identifier") {
+        throw "Expected paremeters to be of type: 'string' ";
+      }
+
+      params.push((arg as Identifier).symbol);
+    }
+
+    this.expect(TokenType.OpenBrace, "Expected '{' before function body");
+    const body: Stmt[] = [];
+    while (
+      this.at().type !== TokenType.EOF &&
+      this.at().type !== TokenType.CloseBrace
+    ) {
+      body.push(this.parse_stmt());
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after function body");
+
+    const fn = {
+      body,
+      name,
+      parameters: params,
+      kind: "FunctionDeclaration",
+    } as FunctionDeclaration;
+
+    return fn;
   }
 
   parse_var_declaration(): Stmt {

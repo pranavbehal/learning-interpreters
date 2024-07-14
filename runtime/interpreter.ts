@@ -17,9 +17,14 @@ import {
   AssignmentExpr,
   ObjectLiteral,
   CallExpr,
+  FunctionDeclaration,
 } from "../frontend/ast.ts";
 import Environment from "./environment.ts";
-import { eval_program, eval_var_declaration } from "./eval/statements.ts";
+import {
+  eval_program,
+  eval_var_declaration,
+  eval_function_declaration,
+} from "./eval/statements.ts";
 import {
   eval_binary_expr,
   eval_identifier,
@@ -56,6 +61,9 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "VarDeclaration":
       return eval_var_declaration(astNode as VarDeclaration, env);
+
+    case "FunctionDeclaration":
+      return eval_function_declaration(astNode as FunctionDeclaration, env);
 
     default:
       console.error("This AST node has not been set up", astNode);
