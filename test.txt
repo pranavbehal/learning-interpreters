@@ -1,13 +1,5 @@
 const foo = 10;
+print(foo + 45)
 
-const obj = {
-  x: 100,
-  y: 32,
-  foo,
-  complex: {
-    bar: true,
-  },
-};
-
-let f = object.complex.bar;
-foo = object.foo() + 5
+const timeNow = time();
+print timeNow

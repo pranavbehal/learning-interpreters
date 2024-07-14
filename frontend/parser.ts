@@ -10,6 +10,7 @@ import {
   ObjectLiteral,
   Property,
   CallExpr,
+  MemberExpr,
 } from "./ast.ts";
 import { tokenize, Token, TokenType } from "./lexer.ts";
 
@@ -240,9 +241,49 @@ export default class Parser {
     return args;
   }
 
-  private parse_arguments_list(): Expr[] {}
+  private parse_arguments_list(): Expr[] {
+    const args = [this.parse_assignment_expr()];
 
-  private parse_member_expr(): Expr {}
+    while (this.at().type == TokenType.Comma && this.eat()) {
+      args.push(this.parse_assignment_expr());
+    }
+
+    return args;
+  }
+
+  private parse_member_expr(): Expr {
+    let object = this.parse_primary_expr();
+
+    while (
+      this.at().type == TokenType.Dot ||
+      this.at().type == TokenType.OpenBracket
+    ) {
+      const operator = this.eat();
+      let property: Expr;
+      let computed: boolean;
+
+      if (operator.type == TokenType.Dot) {
+        computed = false;
+        property = this.parse_primary_expr();
+
+        if (property.kind != "Identifier") {
+          throw `Can't use dot operator on non-identifier`;
+        }
+      } else {
+        computed = true;
+        property = this.parse_expr();
+
+        this.expect(
+          TokenType.CloseBracket,
+          "Expected ']' after object property"
+        );
+      }
+
+      object = { kind: "MemberExpr", object, property, computed } as MemberExpr;
+    }
+
+    return object;
+  }
 
   private parse_primary_expr(): Expr {
     const tk = this.at().type;
