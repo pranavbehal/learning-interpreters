@@ -18,6 +18,8 @@ export enum TokenType {
   CloseParen,
   OpenBrace,
   CloseBrace,
+  OpenBracket,
+  CloseBracket,
   EOF,
 }
 
@@ -67,6 +69,10 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift(), TokenType.OpenBrace));
     else if (src[0] == "}")
       tokens.push(token(src.shift(), TokenType.CloseBrace));
+    else if (src[0] == "[")
+      tokens.push(token(src.shift(), TokenType.OpenBracket));
+    else if (src[0] == "]")
+      tokens.push(token(src.shift(), TokenType.CloseBracket));
     else if (
       src[0] == "+" ||
       src[0] == "-" ||
