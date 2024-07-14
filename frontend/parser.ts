@@ -7,6 +7,8 @@ import {
   Identifier,
   VarDeclaration,
   AssignmentExpr,
+  ObjectLiteral,
+  Property,
 } from "./ast.ts";
 import { tokenize, Token, TokenType } from "./lexer.ts";
 
@@ -107,8 +109,8 @@ export default class Parser {
     return this.parse_assignment_expr();
   }
 
-  parse_assignment_expr(): Expr {
-    const left = this.parse_additive_expr();
+  private parse_assignment_expr(): Expr {
+    const left = this.parse_object_expr();
     if (this.at().type == TokenType.Equals) {
       this.eat();
       const value = this.parse_assignment_expr();
@@ -117,6 +119,53 @@ export default class Parser {
     }
 
     return left;
+  }
+
+  private parse_object_expr(): Expr {
+    if (this.at().type !== TokenType.OpenBrace) {
+      return this.parse_additive_expr();
+    }
+
+    this.eat();
+    const properties = new Array<Property>();
+
+    while (this.not_eof() && this.at().type !== TokenType.CloseBrace) {
+      const key = this.expect(
+        TokenType.Identifier,
+        "Object literal key expected"
+      ).value;
+
+      if (this.at().type == TokenType.Comma) {
+        this.eat();
+        properties.push({
+          key,
+          kind: "Property",
+          value: undefined,
+        } as Property);
+        continue;
+      } else if (this.at().type == TokenType.CloseBrace) {
+        properties.push({
+          key,
+          kind: "Property",
+        });
+        continue;
+      }
+
+      this.expect(TokenType.Colon, "Expected ':' after object literal key");
+      const value = this.parse_expr();
+
+      properties.push({ kind: "Property", key, value });
+      if (this.at().type != TokenType.CloseBrace) {
+        this.expect(
+          TokenType.Comma,
+          "Expected ',' or '}' after object literal value"
+        );
+      }
+    }
+
+    this.expect(TokenType.CloseBrace, "Expected '}' after object literal");
+
+    return { kind: "ObjectLiteral", properties } as ObjectLiteral;
   }
 
   private parse_additive_expr(): Expr {
